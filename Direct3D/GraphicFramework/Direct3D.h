@@ -8,7 +8,7 @@ class Direct3D
 {
 public:
 	bool init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled);
-	void beginScene();
+	void beginScene(FLOAT red, FLOAT green, FLOAT blue);
 	void endScene();
 	void deInit();
 

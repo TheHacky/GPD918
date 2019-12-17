@@ -16,18 +16,18 @@ bool Direct3D::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFulls
 	return true;
 }
 
-void Direct3D::beginScene()
+void Direct3D::beginScene(FLOAT red, FLOAT green, FLOAT blue)
 {
-	FLOAT color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	FLOAT color[4] = { red, green, blue, 1.0f };
 	_pDeviceContext->ClearRenderTargetView(_pRenderTargetView, color);
 }
 
 void Direct3D::endScene()
 {
 	if (_isVsyncEnabled)
-		_pSwapChain->Present(0, 0); // vsync disabled
-	else
 		_pSwapChain->Present(1, 0); // vsync enabled, 1 = sync every frame, 2 = sync every second frame, values of 1 - 4
+	else
+		_pSwapChain->Present(0, 0); // vsync disabled
 }
 
 void Direct3D::deInit()
