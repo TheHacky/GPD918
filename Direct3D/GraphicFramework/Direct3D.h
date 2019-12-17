@@ -21,6 +21,7 @@ private:
 	IDXGISwapChain*			_pSwapChain		= nullptr;
 
 	DXGI_RATIONAL _refreshRate = {};
+	bool _isVsyncEnabled = false;
 
 	const DXGI_FORMAT PIXEL_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 };

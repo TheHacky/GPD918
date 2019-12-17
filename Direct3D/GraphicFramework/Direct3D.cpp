@@ -2,6 +2,8 @@
 
 bool Direct3D::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled)
 {
+	_isVsyncEnabled = isVsyncEnabled;
+
 	if (!getOutputRefreshRate(screenWidth, screenHeight)) return false;
 	return initDevice(hWnd, screenWidth, screenHeight, isFullscreen, isVsyncEnabled);
 }
@@ -12,6 +14,10 @@ void Direct3D::beginScene()
 
 void Direct3D::endScene()
 {
+	if (_isVsyncEnabled)
+		_pSwapChain->Present(0, 0); // vsync disabled
+	else
+		_pSwapChain->Present(1, 0); // vsync enabled, 1 = sync every frame, 2 = sync every second frame, values of 1 - 4
 }
 
 void Direct3D::deInit()
@@ -20,26 +26,31 @@ void Direct3D::deInit()
 
 bool Direct3D::getOutputRefreshRate(UINT screenWidth, UINT screenHeight)
 {
+	// 1. get graphics factory (object for instantiating graphic card objects)
 	IDXGIFactory* pFactory = nullptr;
 	HRESULT result = {};
 
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&pFactory));
 	if (FAILED(result)) return false;
 
+	// 2. get graphic card adapter
 	IDXGIAdapter* pAdapter = nullptr;
 	result = pFactory->EnumAdapters(0, &pAdapter); // get a specific adapter (graphic card)
 	if (FAILED(result)) return false;
 
+	// 3. get an output of graphic card adapter
 	IDXGIOutput* pOutput = nullptr;
 	result = pAdapter->EnumOutputs(0, &pOutput); // get a specific output (monitor)
 	if (FAILED(result)) return false;
 
+	// 4. get all available display modes
 	UINT numModes = 0;
 	pOutput->GetDisplayModeList(PIXEL_FORMAT, 0, &numModes, nullptr); // get count of list items
 
 	DXGI_MODE_DESC* modes = new DXGI_MODE_DESC[numModes];
 	pOutput->GetDisplayModeList(PIXEL_FORMAT, 0, &numModes, modes); // get list items
 
+	// 5. iterate through display modes and search for our actual desired display mode
 	BOOL isFound = false;
 	for (UINT i = 0; i < numModes; i++)
 	{
@@ -51,6 +62,7 @@ bool Direct3D::getOutputRefreshRate(UINT screenWidth, UINT screenHeight)
 		}
 	}
 
+	// 6. clean up all temporary objects
 	// a little unclean because we only release objects if everything run through
 	delete[] modes;
 	modes = nullptr;
@@ -80,7 +92,7 @@ bool Direct3D::initDevice(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL i
 	desc.BufferDesc.Height = screenHeight; // back buffer height
 	if (isVsyncEnabled)
 	{
-		desc.BufferDesc.RefreshRate = _refreshRate;  
+		desc.BufferDesc.RefreshRate = _refreshRate;
 	}
 	else
 	{
@@ -92,7 +104,7 @@ bool Direct3D::initDevice(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL i
 	desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // what should happen with front buffer after swapping? (Standard: DXGI_SWAP_EFFECT_DISCARD)
 	desc.Windowed = !isFullscreen; // windowed mode yes or no
 
-	D3D_FEATURE_LEVEL supportedFeatureLevels[] = { 
+	D3D_FEATURE_LEVEL supportedFeatureLevels[] = {
 		D3D_FEATURE_LEVEL_12_1,
 		D3D_FEATURE_LEVEL_12_0,
 		D3D_FEATURE_LEVEL_11_1,

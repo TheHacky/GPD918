@@ -1,7 +1,7 @@
 #include "System.h"
 #include "Direct3D.h"
 
-LRESULT CALLBACK WndProc(HWND hWnd,	UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
@@ -18,13 +18,14 @@ LRESULT CALLBACK WndProc(HWND hWnd,	UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-bool System::init(HINSTANCE hInstance, UINT screenWidth, UINT screenHeight, int nCmdShow)
+bool System::init(HINSTANCE hInstance, UINT screenWidth, UINT screenHeight, int nCmdShow, bool isFullscreen, bool isVsyncEnabled)
 {
-	bool window = initWindow(hInstance, screenWidth, screenHeight, nCmdShow);
-	Direct3D* d3d = new Direct3D();
-	bool device = d3d->init(_hWnd, screenWidth, screenHeight, false, false);
+	if (!initWindow(hInstance, screenWidth, screenHeight, nCmdShow)) return false;
 
-	return window && device;
+	_pGfxSystem = new GfxSystem();
+	if (!_pGfxSystem->init(_hWnd, screenWidth, screenHeight, isFullscreen, isVsyncEnabled))
+
+	return true;
 }
 
 void System::run()
@@ -38,12 +39,17 @@ void System::run()
 			DispatchMessage(&msg);
 		}
 
-		Sleep(10);
+		_pGfxSystem->update();
+		_pGfxSystem->render();
 	}
 }
 
 void System::deInit()
 {
+	_pGfxSystem->deInit();
+	delete _pGfxSystem;
+	_pGfxSystem = nullptr;
+
 	DestroyWindow(_hWnd);
 }
 
@@ -73,14 +79,14 @@ bool System::initWindow(HINSTANCE hInstance, UINT screenWidth, UINT screenHeight
 	_hWnd = CreateWindow(
 		wc.lpszClassName,
 		wc.lpszClassName,
-		style, 
+		style,
 		r.left, r.top,
-		r.right - r.left, r.bottom - r.top, 
+		r.right - r.left, r.bottom - r.top,
 		nullptr,
 		nullptr,
 		hInstance,
 		nullptr
-		);
+	);
 
 	if (!_hWnd) return false;
 
