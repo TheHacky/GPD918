@@ -76,6 +76,14 @@ int main()
 	int* pLocalI2 = nullptr;
 	FuncPointerInst(pLocalI, &pLocalI2);
 
+	ExampleClass exp = {};
+	exp.Method();
+
+	ExampleClass* pExp = new ExampleClass();
+	(*pExp).Method();
+	pExp->Method(); // same as line above
+	delete pExp;
+
 	return 0;
 }
 

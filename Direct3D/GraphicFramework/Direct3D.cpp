@@ -2,6 +2,7 @@
 
 bool Direct3D::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled)
 {
+	if (!getOutputRefreshRate(screenWidth, screenHeight)) return false;
 	return initDevice(hWnd, screenWidth, screenHeight, isFullscreen, isVsyncEnabled);
 }
 
@@ -17,6 +18,55 @@ void Direct3D::deInit()
 {
 }
 
+bool Direct3D::getOutputRefreshRate(UINT screenWidth, UINT screenHeight)
+{
+	IDXGIFactory* pFactory = nullptr;
+	HRESULT result = {};
+
+	result = CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&pFactory));
+	if (FAILED(result)) return false;
+
+	IDXGIAdapter* pAdapter = nullptr;
+	result = pFactory->EnumAdapters(0, &pAdapter); // get a specific adapter (graphic card)
+	if (FAILED(result)) return false;
+
+	IDXGIOutput* pOutput = nullptr;
+	result = pAdapter->EnumOutputs(0, &pOutput); // get a specific output (monitor)
+	if (FAILED(result)) return false;
+
+	UINT numModes = 0;
+	pOutput->GetDisplayModeList(PIXEL_FORMAT, 0, &numModes, nullptr); // get count of list items
+
+	DXGI_MODE_DESC* modes = new DXGI_MODE_DESC[numModes];
+	pOutput->GetDisplayModeList(PIXEL_FORMAT, 0, &numModes, modes); // get list items
+
+	BOOL isFound = false;
+	for (UINT i = 0; i < numModes; i++)
+	{
+		if (modes[i].Width == screenWidth && modes[i].Height == screenHeight)
+		{
+			_refreshRate = modes[i].RefreshRate;
+			isFound = true;
+			break;
+		}
+	}
+
+	// a little unclean because we only release objects if everything run through
+	delete[] modes;
+	modes = nullptr;
+
+	pOutput->Release(); // we have to call release because it is a COM (Component Object Model) object
+	pOutput = nullptr;
+
+	pAdapter->Release();
+	pAdapter = nullptr;
+
+	pFactory->Release();
+	pFactory = nullptr;
+
+	return isFound;
+}
+
 bool Direct3D::initDevice(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled)
 {
 	// ID3D11Device - used to create other Direct3D object
@@ -25,14 +75,12 @@ bool Direct3D::initDevice(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL i
 
 	DXGI_SWAP_CHAIN_DESC desc = {};
 	desc.BufferCount = 1; // count of back buffer
-	desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // pixel format of back buffer (red, green, blue and alpha with 8bit depth, unsigned, normalized float, sRGB color mode)
+	desc.BufferDesc.Format = PIXEL_FORMAT; // pixel format of back buffer (red, green, blue and alpha with 8bit depth, unsigned, normalized float, sRGB color mode)
 	desc.BufferDesc.Width = screenWidth; // back buffer width
 	desc.BufferDesc.Height = screenHeight; // back buffer height
 	if (isVsyncEnabled)
 	{
-		// TODO: set refresh rate of output
-		desc.BufferDesc.RefreshRate.Denominator = 1;  
-		desc.BufferDesc.RefreshRate.Numerator = 0;  
+		desc.BufferDesc.RefreshRate = _refreshRate;  
 	}
 	else
 	{
@@ -73,7 +121,7 @@ bool Direct3D::initDevice(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL i
 		&_pDeviceContext // pointer pointer device context object
 	);
 
-	if (FAILED(result) || _pDevice == nullptr || _pDeviceContext == nullptr || _pSwapChain == nullptr)
+	if (FAILED(result))
 		return false;
 
 	return true;
