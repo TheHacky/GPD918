@@ -15,10 +15,12 @@ public:
 private:
 	bool getOutputRefreshRate(UINT screenWidth, UINT screenHeight);
 	bool initDevice(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled);
+	bool initRenderTargetView();
 
-	ID3D11Device*			_pDevice		= nullptr;
-	ID3D11DeviceContext*	_pDeviceContext = nullptr;
-	IDXGISwapChain*			_pSwapChain		= nullptr;
+	ID3D11Device*			_pDevice			= nullptr;
+	ID3D11DeviceContext*	_pDeviceContext		= nullptr;
+	IDXGISwapChain*			_pSwapChain			= nullptr;
+	ID3D11RenderTargetView* _pRenderTargetView	= nullptr;
 
 	DXGI_RATIONAL _refreshRate = {};
 	bool _isVsyncEnabled = false;

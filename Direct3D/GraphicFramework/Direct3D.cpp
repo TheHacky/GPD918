@@ -4,12 +4,22 @@ bool Direct3D::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFulls
 {
 	_isVsyncEnabled = isVsyncEnabled;
 
-	if (!getOutputRefreshRate(screenWidth, screenHeight)) return false;
-	return initDevice(hWnd, screenWidth, screenHeight, isFullscreen, isVsyncEnabled);
+	if (isVsyncEnabled)
+	{
+		if (!getOutputRefreshRate(screenWidth, screenHeight)) return false;
+	}
+
+	if (!initDevice(hWnd, screenWidth, screenHeight, isFullscreen, isVsyncEnabled)) return false;
+
+	if (!initRenderTargetView()) return false;
+
+	return true;
 }
 
 void Direct3D::beginScene()
 {
+	FLOAT color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	_pDeviceContext->ClearRenderTargetView(_pRenderTargetView, color);
 }
 
 void Direct3D::endScene()
@@ -22,6 +32,17 @@ void Direct3D::endScene()
 
 void Direct3D::deInit()
 {
+	_pRenderTargetView->Release();
+	_pRenderTargetView = nullptr;
+
+	_pDevice->Release();
+	_pDevice = nullptr;
+
+	_pDeviceContext->Release();
+	_pDeviceContext = nullptr;
+
+	_pSwapChain->Release();
+	_pSwapChain = nullptr;
 }
 
 bool Direct3D::getOutputRefreshRate(UINT screenWidth, UINT screenHeight)
@@ -47,16 +68,16 @@ bool Direct3D::getOutputRefreshRate(UINT screenWidth, UINT screenHeight)
 	UINT numModes = 0;
 	pOutput->GetDisplayModeList(PIXEL_FORMAT, 0, &numModes, nullptr); // get count of list items
 
-	DXGI_MODE_DESC* modes = new DXGI_MODE_DESC[numModes];
-	pOutput->GetDisplayModeList(PIXEL_FORMAT, 0, &numModes, modes); // get list items
+	DXGI_MODE_DESC* desc = new DXGI_MODE_DESC[numModes];
+	pOutput->GetDisplayModeList(PIXEL_FORMAT, 0, &numModes, desc); // get list items
 
 	// 5. iterate through display modes and search for our actual desired display mode
 	BOOL isFound = false;
 	for (UINT i = 0; i < numModes; i++)
 	{
-		if (modes[i].Width == screenWidth && modes[i].Height == screenHeight)
+		if (desc[i].Width == screenWidth && desc[i].Height == screenHeight)
 		{
-			_refreshRate = modes[i].RefreshRate;
+			_refreshRate = desc[i].RefreshRate;
 			isFound = true;
 			break;
 		}
@@ -64,8 +85,8 @@ bool Direct3D::getOutputRefreshRate(UINT screenWidth, UINT screenHeight)
 
 	// 6. clean up all temporary objects
 	// a little unclean because we only release objects if everything run through
-	delete[] modes;
-	modes = nullptr;
+	delete[] desc;
+	desc = nullptr;
 
 	pOutput->Release(); // we have to call release because it is a COM (Component Object Model) object
 	pOutput = nullptr;
@@ -135,6 +156,23 @@ bool Direct3D::initDevice(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL i
 
 	if (FAILED(result))
 		return false;
+
+	return true;
+}
+
+bool Direct3D::initRenderTargetView()
+{
+	ID3D11Texture2D* pBackbuffer = nullptr;
+	HRESULT result = _pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackbuffer));
+	if (FAILED(result)) return false;
+
+	result = _pDevice->CreateRenderTargetView(pBackbuffer, nullptr, &_pRenderTargetView);
+	if (FAILED(result)) return false;
+
+	pBackbuffer->Release();
+	pBackbuffer = nullptr;
+
+	_pDeviceContext->OMSetRenderTargets(1, &_pRenderTargetView, nullptr); // OM - Output Merger
 
 	return true;
 }
