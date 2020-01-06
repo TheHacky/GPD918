@@ -12,6 +12,9 @@ public:
 	void endScene();
 	void deInit();
 
+	ID3D11Device* getDevice() { return _pDevice; }
+	ID3D11DeviceContext* getDeviceContext() { return _pDeviceContext; }
+
 private:
 	bool getOutputRefreshRate(UINT screenWidth, UINT screenHeight);
 	bool initDevice(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled);

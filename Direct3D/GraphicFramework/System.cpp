@@ -23,7 +23,7 @@ bool System::init(HINSTANCE hInstance, UINT screenWidth, UINT screenHeight, int 
 	if (!initWindow(hInstance, screenWidth, screenHeight, nCmdShow)) return false;
 
 	_pGfxSystem = new GfxSystem();
-	if (!_pGfxSystem->init(_hWnd, screenWidth, screenHeight, isFullscreen, isVsyncEnabled))
+	if (!_pGfxSystem->init(_hWnd, screenWidth, screenHeight, isFullscreen, isVsyncEnabled)) return false;
 
 	return true;
 }

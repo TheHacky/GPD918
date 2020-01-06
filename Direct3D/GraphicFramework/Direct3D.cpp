@@ -2,14 +2,14 @@
 
 bool Direct3D::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled)
 {
-	_isVsyncEnabled = isVsyncEnabled;
+	_isVsyncEnabled = isVsyncEnabled && isFullscreen;
 
-	if (isVsyncEnabled)
+	if (_isVsyncEnabled)
 	{
 		if (!getOutputRefreshRate(screenWidth, screenHeight)) return false;
 	}
 
-	if (!initDevice(hWnd, screenWidth, screenHeight, isFullscreen, isVsyncEnabled)) return false;
+	if (!initDevice(hWnd, screenWidth, screenHeight, isFullscreen, _isVsyncEnabled)) return false;
 
 	if (!initRenderTargetView()) return false;
 
