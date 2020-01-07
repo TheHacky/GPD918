@@ -10,6 +10,8 @@ public:
 	void render(ID3D11DeviceContext* pDeviceContext);
 	void deInit();
 
+	UINT getIndexCount() { return _indexCount; }
+
 protected:
 	virtual void initVertexData() = 0;
 	virtual void initIndexData() = 0;

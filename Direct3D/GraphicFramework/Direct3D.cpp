@@ -13,6 +13,8 @@ bool Direct3D::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFulls
 
 	if (!initRenderTargetView()) return false;
 
+	if (!setTarget(screenWidth, screenHeight)) return false;
+
 	return true;
 }
 
@@ -172,7 +174,21 @@ bool Direct3D::initRenderTargetView()
 	pBackbuffer->Release();
 	pBackbuffer = nullptr;
 
+	return true;
+}
+
+bool Direct3D::setTarget(UINT screenWidth, UINT screenHeight)
+{
 	_pDeviceContext->OMSetRenderTargets(1, &_pRenderTargetView, nullptr); // OM - Output Merger
+
+	D3D11_VIEWPORT viewport = {};
+	viewport.Width = static_cast<FLOAT>(screenWidth);
+	viewport.Height = static_cast<FLOAT>(screenHeight);
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	_pDeviceContext->RSSetViewports(1, &viewport); // RS - Rasterizer Stage
 
 	return true;
 }

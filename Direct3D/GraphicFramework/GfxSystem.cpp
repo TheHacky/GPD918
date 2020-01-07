@@ -1,6 +1,7 @@
 #include "GfxSystem.h"
 #include <random>
 #include "Triangle.h"
+#include "ColorShader.h"
 
 bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled)
 {
@@ -10,6 +11,9 @@ bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFull
 
 	_pMesh = new Triangle();
 	if (!_pMesh->init(_pD3D->getDevice())) return false;
+
+	_pShader = new ColorShader();
+	if (!_pShader->init(_pD3D->getDevice())) return false;
 
 	return true;
 }
@@ -28,7 +32,8 @@ void GfxSystem::render()
 
 	//_pD3D->beginScene(d(e), d(e), d(e));
 
-	//TODO: render stuff
+	_pMesh->render(_pD3D->getDeviceContext());
+	_pShader->render(_pD3D->getDeviceContext(), _pMesh->getIndexCount());
 	
 	_pD3D->endScene();
 }

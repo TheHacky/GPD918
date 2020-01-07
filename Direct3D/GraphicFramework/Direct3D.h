@@ -19,6 +19,7 @@ private:
 	bool getOutputRefreshRate(UINT screenWidth, UINT screenHeight);
 	bool initDevice(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled);
 	bool initRenderTargetView();
+	bool setTarget(UINT screenWidth, UINT screenHeight);
 
 	ID3D11Device*			_pDevice			= nullptr;
 	ID3D11DeviceContext*	_pDeviceContext		= nullptr;
