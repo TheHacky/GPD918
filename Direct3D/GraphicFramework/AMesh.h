@@ -1,6 +1,9 @@
 #pragma once
 #include <d3d11.h>
 #include "Vertex.h"
+#include <DirectXMath.h>
+
+using namespace DirectX;
 
 class AMesh
 {
@@ -11,6 +14,7 @@ public:
 	void deInit();
 
 	UINT getIndexCount() { return _indexCount; }
+	XMFLOAT4X4 getWorldMatrix() { return _worldMatrix; }
 
 protected:
 	virtual void initVertexData() = 0;
@@ -29,5 +33,7 @@ private:
 
 	UINT _stride = sizeof(Vertex);
 	UINT _offset = 0;
+
+	XMFLOAT4X4 _worldMatrix;
 };
 

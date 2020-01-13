@@ -3,7 +3,7 @@
 
 bool AShader::init(ID3D11Device* pDevice)
 {
-	return initVertexShader(pDevice) && initPixelShader(pDevice);
+	return initVertexShader(pDevice) && initPixelShader(pDevice) && initMatrixBuffer(pDevice);
 }
 
 void AShader::render(ID3D11DeviceContext* pDeviceContext, UINT indexCount)
@@ -13,12 +13,18 @@ void AShader::render(ID3D11DeviceContext* pDeviceContext, UINT indexCount)
 	pDeviceContext->VSSetShader(_pVertexShader, nullptr, 0);
 	pDeviceContext->PSSetShader(_pPixelShader, nullptr, 0);
 
+	// set values
+	pDeviceContext->VSSetConstantBuffers(0, 1, &_pMatrixBuffer);
+
 	// render
 	pDeviceContext->DrawIndexed(indexCount, 0, 0);
 }
 
 void AShader::deInit()
 {
+	_pMatrixBuffer->Release();
+	_pMatrixBuffer = nullptr;
+
 	_pInputLayout->Release();
 	_pInputLayout = nullptr;
 
@@ -27,6 +33,28 @@ void AShader::deInit()
 
 	_pVertexShader->Release();
 	_pVertexShader = nullptr;
+}
+
+void AShader::setMatrixBufferValues(ID3D11DeviceContext* pDeviceContext, void** values)
+{
+	// map video memory of constant buffer onto normal memory
+	D3D11_MAPPED_SUBRESOURCE tmpMap = {};
+	pDeviceContext->Map(_pMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &tmpMap);
+
+	// calculate world-view-projection-matrix
+	XMMATRIX worldMatrix = XMLoadFloat4x4(reinterpret_cast<XMFLOAT4X4*>(values[0]));
+	XMMATRIX viewMatrix = XMLoadFloat4x4(reinterpret_cast<XMFLOAT4X4*>(values[1]));
+	XMMATRIX projectionMatrix = XMLoadFloat4x4(reinterpret_cast<XMFLOAT4X4*>(values[2]));
+	XMMATRIX wvpMatrix = worldMatrix * viewMatrix * projectionMatrix;
+
+	// transpose matrix, because gpu work with column major
+	wvpMatrix = XMMatrixTranspose(wvpMatrix);
+
+	// store data in memory
+	XMStoreFloat4x4(reinterpret_cast<XMFLOAT4X4*>(tmpMap.pData), wvpMatrix);
+
+	// unmap resource to write back data to video memory
+	pDeviceContext->Unmap(_pMatrixBuffer, 0);
 }
 
 bool AShader::initVertexShader(ID3D11Device* pDevice)
@@ -88,13 +116,33 @@ bool AShader::initInputLayout(ID3D11Device* pDevice, ID3DBlob* pBlob)
 {
 	// https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
 
-	D3D11_INPUT_ELEMENT_DESC desc = {};
-	desc.SemanticName = "POSITION";
-	desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	D3D11_INPUT_ELEMENT_DESC desc[2] = {};
+	
+	// POSITION
+	desc[0].SemanticName = "POSITION";
+	desc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 
-	HRESULT hr = pDevice->CreateInputLayout(&desc, 1, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &_pInputLayout);
+	// COLOR
+	desc[1].SemanticName = "COLOR";
+	desc[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	desc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+	HRESULT hr = pDevice->CreateInputLayout(desc, 2, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &_pInputLayout);
 
 	if (FAILED(hr)) return false;
 
 	return true;
+}
+
+bool AShader::initMatrixBuffer(ID3D11Device* pDevice)
+{
+	_matrixBufferSize = sizeof(XMFLOAT4X4);
+
+	D3D11_BUFFER_DESC desc = {};
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = _matrixBufferSize;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	return SUCCEEDED(pDevice->CreateBuffer(&desc, nullptr, &_pMatrixBuffer));
 }

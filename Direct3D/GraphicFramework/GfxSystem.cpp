@@ -15,11 +15,16 @@ bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFull
 	_pShader = new ColorShader();
 	if (!_pShader->init(_pD3D->getDevice())) return false;
 
+	_pCamera = new Camera();
+	if (!_pCamera->init(screenWidth, screenHeight)) return false;
+
 	return true;
 }
 
 void GfxSystem::update()
 {
+	_pCamera->update();
+	_pMesh->update();
 }
 
 void GfxSystem::render()
@@ -33,6 +38,14 @@ void GfxSystem::render()
 	//_pD3D->beginScene(d(e), d(e), d(e));
 
 	_pMesh->render(_pD3D->getDeviceContext());
+
+	void* matrices[3] = {
+		reinterpret_cast<void*>(&_pMesh->getWorldMatrix()),
+		reinterpret_cast<void*>(&_pCamera->getViewMatrix()),
+		reinterpret_cast<void*>(&_pCamera->getProjectionMatrix())
+	};
+
+	_pShader->setMatrixBufferValues(_pD3D->getDeviceContext(), matrices);
 	_pShader->render(_pD3D->getDeviceContext(), _pMesh->getIndexCount());
 	
 	_pD3D->endScene();
@@ -40,6 +53,12 @@ void GfxSystem::render()
 
 void GfxSystem::deInit()
 {
+	delete _pCamera;
+	_pCamera = nullptr;
+
+	delete _pShader;
+	_pShader = nullptr;
+
 	delete _pMesh;
 	_pMesh = nullptr;
 
