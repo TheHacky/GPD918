@@ -24,6 +24,15 @@ bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFull
 void GfxSystem::update()
 {
 	_pCamera->update();
+
+	static float scale = 1.0f;
+	static float delta = 0.0001f;
+	if (scale >= 1.0f || scale <= 0.0f) delta *= -1.0f;
+	scale += delta;
+
+
+	_pMesh->rotate(XMVectorSet(0.0f, 0.0f, -0.0001f, 0.0f));
+	_pMesh->scale(XMVectorSet(scale, scale, scale, 0.0f));
 	_pMesh->update();
 }
 

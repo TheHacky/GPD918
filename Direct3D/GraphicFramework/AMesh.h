@@ -16,6 +16,10 @@ public:
 	UINT getIndexCount() { return _indexCount; }
 	XMFLOAT4X4 getWorldMatrix() { return _worldMatrix; }
 
+	void move(FXMVECTOR vector);
+	void rotate(FXMVECTOR euler);
+	void scale(FXMVECTOR scale);
+
 protected:
 	virtual void initVertexData() = 0;
 	virtual void initIndexData() = 0;
@@ -24,6 +28,10 @@ protected:
 	UINT* _pIndexData = nullptr;
 	UINT _vertexCount = 0;
 	UINT _indexCount = 0;
+
+	XMFLOAT3 _position = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT4 _rotation = { 0.0f, 0.0f, 0.0f, 1.0f };
+	XMFLOAT3 _scale = { 1.0f, 1.0f, 1.0f };
 
 private:
 	bool createBuffers(ID3D11Device* pDevice);

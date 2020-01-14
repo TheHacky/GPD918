@@ -11,7 +11,7 @@ bool AMesh::init(ID3D11Device* pDevice)
 void AMesh::update()
 {
 
-	XMMATRIX matrix = XMMatrixScaling(1.0f, 1.0f, 1.0f) * XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f) * XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+	XMMATRIX matrix = XMMatrixTransformation(XMVectorZero(), XMVectorZero(), XMLoadFloat3(&_scale), XMVectorZero(), XMLoadFloat4(&_rotation), XMLoadFloat3(&_position));
 	XMStoreFloat4x4(&_worldMatrix, matrix);
 }
 
@@ -35,6 +35,26 @@ void AMesh::deInit()
 
 	delete[] _pIndexData;
 	_pIndexData = nullptr;
+}
+
+void AMesh::move(FXMVECTOR vector)
+{
+	XMVECTOR position = XMLoadFloat3(&_position);
+	position += vector;
+	XMStoreFloat3(&_position, position);
+}
+
+void AMesh::rotate(FXMVECTOR euler)
+{
+	XMVECTOR rotation = XMLoadFloat4(&_rotation);
+	XMVECTOR quaternion = XMQuaternionRotationRollPitchYawFromVector(euler);
+	rotation = XMQuaternionMultiply(rotation, quaternion);
+	XMStoreFloat4(&_rotation, rotation);
+}
+
+void AMesh::scale(FXMVECTOR scale)
+{
+	XMStoreFloat3(&_scale, scale);
 }
 
 bool AMesh::createBuffers(ID3D11Device* pDevice)
