@@ -1,5 +1,6 @@
 #include "System.h"
 #include "Direct3D.h"
+#include <sstream>
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -25,6 +26,8 @@ bool System::init(HINSTANCE hInstance, UINT screenWidth, UINT screenHeight, int 
 	_pGfxSystem = new GfxSystem();
 	if (!_pGfxSystem->init(_hWnd, screenWidth, screenHeight, isFullscreen, isVsyncEnabled)) return false;
 
+	if (!initHighFrequencyTimer()) return false;
+
 	return true;
 }
 
@@ -39,7 +42,9 @@ void System::run()
 			DispatchMessage(&msg);
 		}
 
-		_pGfxSystem->update();
+		updateHighFrequencyTimer();
+
+		_pGfxSystem->update(_deltaTime);
 		_pGfxSystem->render();
 	}
 }
@@ -94,4 +99,34 @@ bool System::initWindow(HINSTANCE hInstance, UINT screenWidth, UINT screenHeight
 	SetFocus(_hWnd);
 
 	return true;
+}
+
+bool System::initHighFrequencyTimer()
+{
+	LARGE_INTEGER tmp = {};
+	if (!QueryPerformanceFrequency(&tmp)) return false;
+
+	_secondsPerTick = 1.0f / tmp.QuadPart;
+
+	if (!QueryPerformanceCounter(&_lastTickCount)) return false;
+
+	return true;
+}
+
+void System::updateHighFrequencyTimer()
+{
+	LARGE_INTEGER tmp = {};
+
+	QueryPerformanceCounter(&tmp);
+
+	LONGLONG delta = tmp.QuadPart - _lastTickCount.QuadPart;
+	_deltaTime = delta * _secondsPerTick;
+	_lastTickCount = tmp;
+
+#if UNICODE
+	std::wstringstream wss;
+	wss << L"DeltaTime: " << _deltaTime << " // FPS: " << 1.0f / _deltaTime << std::endl;
+	OutputDebugString(wss.str().c_str());
+#endif // UNICODE
+
 }

@@ -8,7 +8,7 @@ class GfxSystem
 {
 public:
 	bool init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled);
-	void update();
+	void update(FLOAT dt);
 	void render();
 	void deInit();
 
