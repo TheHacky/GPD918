@@ -1,6 +1,7 @@
 #include "GfxSystem.h"
 #include <random>
 #include "Triangle.h"
+#include "Quad.h"
 #include "ColorShader.h"
 
 bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled)
@@ -9,7 +10,7 @@ bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFull
 
 	if (!_pD3D->init(hWnd, screenWidth, screenHeight, isFullscreen, isVsyncEnabled)) return false;
 
-	_pMesh = new Triangle();
+	_pMesh = new Quad();
 	if (!_pMesh->init(_pD3D->getDevice())) return false;
 
 	_pShader = new ColorShader();
@@ -25,13 +26,13 @@ void GfxSystem::update(FLOAT dt)
 {
 	_pCamera->update();
 
-	static float scale = 1.0f;
+	/*static float scale = 1.0f;
 	static float delta = 0.1f;
 	if (scale >= 1.0f || scale <= 0.0f) delta *= -1.0f;
 	scale += delta * dt;
 
 	_pMesh->rotate(XMVectorSet(0.0f, 0.0f, XM_PIDIV4, 0.0f) * dt);
-	_pMesh->scale(XMVectorSet(scale, scale, scale, 0.0f));
+	_pMesh->scale(XMVectorSet(scale, scale, scale, 0.0f));*/
 	_pMesh->update();
 }
 

@@ -123,7 +123,7 @@ void System::updateHighFrequencyTimer()
 	_deltaTime = delta * _secondsPerTick;
 	_lastTickCount = tmp;
 
-#if UNICODE
+#if UNICODE && _DEBUG
 	std::wstringstream wss;
 	wss << L"DeltaTime: " << _deltaTime << " // FPS: " << 1.0f / _deltaTime << std::endl;
 	OutputDebugString(wss.str().c_str());
