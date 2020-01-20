@@ -18,6 +18,7 @@ bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFull
 
 	_pCamera = new Camera();
 	if (!_pCamera->init(screenWidth, screenHeight)) return false;
+	_pCamera->move(XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f));
 
 	return true;
 }
