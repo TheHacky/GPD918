@@ -3,6 +3,7 @@
 #include "Triangle.h"
 #include "Quad.h"
 #include "ColorShader.h"
+#include "TextureShader.h"
 
 bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled)
 {
@@ -13,12 +14,15 @@ bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFull
 	_pMesh = new Quad();
 	if (!_pMesh->init(_pD3D->getDevice())) return false;
 
-	_pShader = new ColorShader();
+	_pShader = new TextureShader();
 	if (!_pShader->init(_pD3D->getDevice())) return false;
 
 	_pCamera = new Camera();
 	if (!_pCamera->init(screenWidth, screenHeight)) return false;
 	_pCamera->move(XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f));
+
+	_pTexture = new Texture("brick_wall.jpg");
+	if (!_pTexture->init(_pD3D->getDevice())) return false;
 
 	return true;
 }
@@ -55,7 +59,11 @@ void GfxSystem::render()
 		reinterpret_cast<void*>(&_pCamera->getProjectionMatrix())
 	};
 
+	void* resources[1] = {
+		reinterpret_cast<void*>(_pTexture)
+	};
 	_pShader->setMatrixBufferValues(_pD3D->getDeviceContext(), matrices);
+	_pShader->setShaderResources(_pD3D->getDeviceContext(), resources);
 	_pShader->render(_pD3D->getDeviceContext(), _pMesh->getIndexCount());
 	
 	_pD3D->endScene();

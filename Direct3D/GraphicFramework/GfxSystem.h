@@ -3,6 +3,7 @@
 #include "AMesh.h"
 #include "AShader.h"
 #include "Camera.h"
+#include "Texture.h"
 
 class GfxSystem
 {
@@ -18,4 +19,5 @@ private:
 	AMesh* _pMesh = nullptr;
 	AShader* _pShader = nullptr;
 	Camera* _pCamera = nullptr;
+	Texture* _pTexture = nullptr;
 };

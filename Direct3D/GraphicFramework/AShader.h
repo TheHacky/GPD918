@@ -15,6 +15,7 @@ public:
 	void deInit();
 
 	virtual void setMatrixBufferValues(ID3D11DeviceContext* pDeviceContext, void** values);
+	virtual void setShaderResources(ID3D11DeviceContext* pDeviceContext, void** values) {};
 
 protected:
 #if UNICODE

@@ -116,7 +116,7 @@ bool AShader::initInputLayout(ID3D11Device* pDevice, ID3DBlob* pBlob)
 {
 	// https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics
 
-	D3D11_INPUT_ELEMENT_DESC desc[2] = {};
+	D3D11_INPUT_ELEMENT_DESC desc[3] = {};
 	
 	// POSITION
 	desc[0].SemanticName = "POSITION";
@@ -127,7 +127,12 @@ bool AShader::initInputLayout(ID3D11Device* pDevice, ID3DBlob* pBlob)
 	desc[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	desc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 
-	HRESULT hr = pDevice->CreateInputLayout(desc, 2, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &_pInputLayout);
+	// UV
+	desc[2].SemanticName = "TEXCOORD";
+	desc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
+	desc[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+	HRESULT hr = pDevice->CreateInputLayout(desc, 3, pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &_pInputLayout);
 
 	if (FAILED(hr)) return false;
 
