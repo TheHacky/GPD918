@@ -1,6 +1,11 @@
 #include "AShader.h"
 #include <d3dcompiler.h>
 
+AShader::AShader()
+{
+	_matrixBufferSize = sizeof(MatrixBuffer);
+}
+
 bool AShader::init(ID3D11Device* pDevice)
 {
 	return initVertexShader(pDevice) && initPixelShader(pDevice) && initMatrixBuffer(pDevice);
@@ -51,7 +56,9 @@ void AShader::setMatrixBufferValues(ID3D11DeviceContext* pDeviceContext, void** 
 	wvpMatrix = XMMatrixTranspose(wvpMatrix);
 
 	// store data in memory
-	XMStoreFloat4x4(reinterpret_cast<XMFLOAT4X4*>(tmpMap.pData), wvpMatrix);
+	MatrixBuffer* pBuffer = reinterpret_cast<MatrixBuffer*>(tmpMap.pData);
+	XMStoreFloat4x4(&pBuffer->worldViewProjectionMatrix, wvpMatrix);
+	pBuffer->tilingOffset = *reinterpret_cast<XMFLOAT4*>(values[3]);
 
 	// unmap resource to write back data to video memory
 	pDeviceContext->Unmap(_pMatrixBuffer, 0);
@@ -141,8 +148,6 @@ bool AShader::initInputLayout(ID3D11Device* pDevice, ID3DBlob* pBlob)
 
 bool AShader::initMatrixBuffer(ID3D11Device* pDevice)
 {
-	_matrixBufferSize = sizeof(XMFLOAT4X4);
-
 	D3D11_BUFFER_DESC desc = {};
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	desc.ByteWidth = _matrixBufferSize;

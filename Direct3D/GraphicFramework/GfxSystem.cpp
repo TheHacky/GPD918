@@ -2,6 +2,7 @@
 #include <random>
 #include "Triangle.h"
 #include "Quad.h"
+#include "Cube.h"
 #include "ColorShader.h"
 #include "TextureShader.h"
 
@@ -11,17 +12,18 @@ bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFull
 
 	if (!_pD3D->init(hWnd, screenWidth, screenHeight, isFullscreen, isVsyncEnabled)) return false;
 
-	_pMesh = new Quad();
+	_pMesh = new Cube();
 	if (!_pMesh->init(_pD3D->getDevice())) return false;
+	_pMesh->rotate(XMVectorSet(XM_PIDIV4, XM_PIDIV4, 0.0f, 0.0f));
 
-	_pShader = new TextureShader();
+	_pShader = new ColorShader();
 	if (!_pShader->init(_pD3D->getDevice())) return false;
 
 	_pCamera = new Camera();
 	if (!_pCamera->init(screenWidth, screenHeight)) return false;
-	_pCamera->move(XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f));
+	_pCamera->move(XMVectorSet(0.0f, 0.0f, -2.0f, 0.0f));
 
-	_pTexture = new Texture("brick_wall.jpg");
+	_pTexture = new Texture("brick_wall.png");
 	if (!_pTexture->init(_pD3D->getDevice())) return false;
 
 	return true;
@@ -31,19 +33,19 @@ void GfxSystem::update(FLOAT dt)
 {
 	_pCamera->update();
 
-	/*static float scale = 1.0f;
+	static float scale = 1.0f;
 	static float delta = 0.1f;
 	if (scale >= 1.0f || scale <= 0.0f) delta *= -1.0f;
 	scale += delta * dt;
 
-	_pMesh->rotate(XMVectorSet(0.0f, 0.0f, XM_PIDIV4, 0.0f) * dt);
-	_pMesh->scale(XMVectorSet(scale, scale, scale, 0.0f));*/
+	_pMesh->rotate(XMVectorSet(0.0f, XM_PIDIV4, 0.0f, 0.0f) * dt);
+	//_pMesh->scale(XMVectorSet(scale, scale, scale, 0.0f));
 	_pMesh->update();
 }
 
 void GfxSystem::render()
 {
-	_pD3D->beginScene(0.0f, 0.0f, 0.0f);
+	_pD3D->beginScene(0.2f, 0.2f, 0.2f);
 
 	//// random background colors
 	//static std::default_random_engine e;
@@ -53,10 +55,11 @@ void GfxSystem::render()
 
 	_pMesh->render(_pD3D->getDeviceContext());
 
-	void* matrices[3] = {
+	void* matrices[] = {
 		reinterpret_cast<void*>(&_pMesh->getWorldMatrix()),
 		reinterpret_cast<void*>(&_pCamera->getViewMatrix()),
-		reinterpret_cast<void*>(&_pCamera->getProjectionMatrix())
+		reinterpret_cast<void*>(&_pCamera->getProjectionMatrix()),
+		reinterpret_cast<void*>(&_pTexture->getTilingOffset()),
 	};
 
 	void* resources[1] = {

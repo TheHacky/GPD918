@@ -1,6 +1,7 @@
 cbuffer MatrixBuffer
 {
 	float4x4 worldViewProjectionMatrix;
+	float4 tilingOffset;
 };
 
 struct VertexOutput
@@ -16,7 +17,7 @@ VertexOutput main(float4 pos : POSITION, float2 uv : TEXCOORD)
 	pos.w = 1.0f;
 	output.position = mul(pos, worldViewProjectionMatrix);
 
-	output.uv = uv;
+	output.uv = uv * tilingOffset.xy + tilingOffset.zw;
 
 	return output;
 }

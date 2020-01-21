@@ -10,6 +10,7 @@ using namespace DirectX;
 class AShader
 {
 public:
+	AShader();
 	bool init(ID3D11Device* pDevice);
 	void render(ID3D11DeviceContext* pDeviceContext, UINT indexCount);
 	void deInit();
@@ -29,6 +30,12 @@ protected:
 	UINT _matrixBufferSize;
 
 private:
+	struct MatrixBuffer
+	{
+		XMFLOAT4X4 worldViewProjectionMatrix;
+		XMFLOAT4 tilingOffset;
+	};
+
 	bool initVertexShader(ID3D11Device* pDevice);
 	bool initPixelShader(ID3D11Device* pDevice);
 	bool initInputLayout(ID3D11Device* pDevice, ID3DBlob* pBlob);

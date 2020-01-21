@@ -1,5 +1,8 @@
 #pragma once
 #include <d3d11.h>
+#include <DirectXMath.h>
+
+using namespace DirectX;
 
 class Texture
 {
@@ -11,6 +14,7 @@ public:
 
 	ID3D11ShaderResourceView* getTexture() { return _pTexture; }
 	ID3D11SamplerState* getSampler() { return _pSampler; }
+	XMFLOAT4 getTilingOffset() { return _tilingOffset; }
 
 private:
 	bool createTexture(ID3D11Device* pDevice);
@@ -20,5 +24,6 @@ private:
 	ID3D11SamplerState* _pSampler = nullptr;
 
 	LPCSTR _filepath = "";
+	XMFLOAT4 _tilingOffset = { 1.0f, 1.0f, 0.0f, 0.0f };
 };
 

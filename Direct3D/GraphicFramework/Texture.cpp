@@ -69,6 +69,10 @@ bool Texture::createSampler(ID3D11Device* pDevice)
 	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.BorderColor[0] = 1.0f;
+	desc.BorderColor[1] = 0.0f;
+	desc.BorderColor[2] = 1.0f;
+	desc.BorderColor[3] = 1.0f;
 	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	desc.MinLOD = FLT_MIN;
