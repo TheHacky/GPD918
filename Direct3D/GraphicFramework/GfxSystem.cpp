@@ -16,7 +16,12 @@ bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFull
 	if (!_pMesh->init(_pD3D->getDevice())) return false;
 	_pMesh->rotate(XMVectorSet(XM_PIDIV4, XM_PIDIV4, 0.0f, 0.0f));
 
-	_pShader = new ColorShader();
+	_pMesh2 = new Cube();
+	if (!_pMesh2->init(_pD3D->getDevice())) return false;
+	_pMesh2->move(XMVectorSet(0.5f, 0.5f, 0.5f, 0.0f));
+	_pMesh2->rotate(XMVectorSet(-XM_PIDIV4, -XM_PIDIV4, 0.0f, 0.0f));
+
+	_pShader = new TextureShader();
 	if (!_pShader->init(_pD3D->getDevice())) return false;
 
 	_pCamera = new Camera();
@@ -41,6 +46,8 @@ void GfxSystem::update(FLOAT dt)
 	_pMesh->rotate(XMVectorSet(0.0f, XM_PIDIV4, 0.0f, 0.0f) * dt);
 	//_pMesh->scale(XMVectorSet(scale, scale, scale, 0.0f));
 	_pMesh->update();
+
+	_pMesh2->update();
 }
 
 void GfxSystem::render()
@@ -69,6 +76,11 @@ void GfxSystem::render()
 	_pShader->setShaderResources(_pD3D->getDeviceContext(), resources);
 	_pShader->render(_pD3D->getDeviceContext(), _pMesh->getIndexCount());
 	
+
+	matrices[0] = reinterpret_cast<void*>(&_pMesh2->getWorldMatrix());
+	_pShader->setMatrixBufferValues(_pD3D->getDeviceContext(), matrices);
+	_pShader->render(_pD3D->getDeviceContext(), _pMesh2->getIndexCount());
+
 	_pD3D->endScene();
 }
 

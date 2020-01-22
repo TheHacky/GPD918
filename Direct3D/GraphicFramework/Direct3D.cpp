@@ -13,6 +13,10 @@ bool Direct3D::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFulls
 
 	if (!initRenderTargetView()) return false;
 
+	if (!initDepthStencilView(screenWidth, screenHeight)) return false;
+
+	if (!initRasterizerState()) return false;
+
 	if (!setTarget(screenWidth, screenHeight)) return false;
 
 	return true;
@@ -22,6 +26,7 @@ void Direct3D::beginScene(FLOAT red, FLOAT green, FLOAT blue)
 {
 	FLOAT color[4] = { red, green, blue, 1.0f };
 	_pDeviceContext->ClearRenderTargetView(_pRenderTargetView, color);
+	_pDeviceContext->ClearDepthStencilView(_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void Direct3D::endScene()
@@ -177,9 +182,51 @@ bool Direct3D::initRenderTargetView()
 	return true;
 }
 
+bool Direct3D::initDepthStencilView(UINT screenWidth, UINT screenHeight)
+{
+	ID3D11Texture2D* pTexture = nullptr;
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.ArraySize = 1;
+	textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	textureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	textureDesc.Width = screenWidth;
+	textureDesc.Height = screenHeight;
+	textureDesc.MipLevels = 1;
+	textureDesc.SampleDesc.Count = 1;
+
+	HRESULT hr = _pDevice->CreateTexture2D(&textureDesc, nullptr, &pTexture);
+	if (FAILED(hr)) return false;
+
+	hr = _pDevice->CreateDepthStencilView(pTexture, nullptr, &_pDepthStencilView);
+	if (FAILED(hr)) return false;
+
+	pTexture->Release();
+	pTexture = nullptr;
+
+	D3D11_DEPTH_STENCIL_DESC depthDesc = {};
+	depthDesc.DepthEnable = true;
+	depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+
+	hr = _pDevice->CreateDepthStencilState(&depthDesc, &_pDepthStencilState);
+	if (FAILED(hr)) return false;
+
+	return true;
+}
+
+bool Direct3D::initRasterizerState()
+{
+	D3D11_RASTERIZER_DESC desc = {};
+	desc.CullMode = D3D11_CULL_BACK;
+	desc.FillMode = D3D11_FILL_SOLID;
+
+	return SUCCEEDED(_pDevice->CreateRasterizerState(&desc, &_pRasterizerState));
+}
+
 bool Direct3D::setTarget(UINT screenWidth, UINT screenHeight)
 {
-	_pDeviceContext->OMSetRenderTargets(1, &_pRenderTargetView, nullptr); // OM - Output Merger
+	_pDeviceContext->OMSetRenderTargets(1, &_pRenderTargetView, _pDepthStencilView); // OM - Output Merger
+	_pDeviceContext->OMSetDepthStencilState(_pDepthStencilState, 0);
 
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<FLOAT>(screenWidth);
@@ -189,6 +236,7 @@ bool Direct3D::setTarget(UINT screenWidth, UINT screenHeight)
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	_pDeviceContext->RSSetViewports(1, &viewport); // RS - Rasterizer Stage
+	_pDeviceContext->RSSetState(_pRasterizerState);
 
 	return true;
 }
