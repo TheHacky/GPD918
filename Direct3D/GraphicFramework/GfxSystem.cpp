@@ -5,6 +5,7 @@
 #include "Cube.h"
 #include "ColorShader.h"
 #include "TextureShader.h"
+#include "LightingShader.h"
 
 bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFullscreen, BOOL isVsyncEnabled)
 {
@@ -21,7 +22,7 @@ bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFull
 	_pMesh2->move(XMVectorSet(0.5f, 0.5f, 0.5f, 0.0f));
 	_pMesh2->rotate(XMVectorSet(-XM_PIDIV4, -XM_PIDIV4, 0.0f, 0.0f));
 
-	_pShader = new TextureShader();
+	_pShader = new LightingShader();
 	if (!_pShader->init(_pD3D->getDevice())) return false;
 
 	_pCamera = new Camera();

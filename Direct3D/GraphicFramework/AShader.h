@@ -11,7 +11,7 @@ class AShader
 {
 public:
 	AShader();
-	bool init(ID3D11Device* pDevice);
+	virtual bool init(ID3D11Device* pDevice);
 	void render(ID3D11DeviceContext* pDeviceContext, UINT indexCount);
 	void deInit();
 
@@ -27,6 +27,7 @@ protected:
 	LPCSTR _pixelShaderFilename = "";
 #endif // UNICODE
 
+	ID3D11Buffer* _pMatrixBuffer = nullptr;
 	UINT _matrixBufferSize;
 
 private:
@@ -44,8 +45,5 @@ private:
 	ID3D11VertexShader* _pVertexShader = nullptr;
 	ID3D11PixelShader* _pPixelShader = nullptr;
 	ID3D11InputLayout* _pInputLayout = nullptr;
-
-	ID3D11Buffer* _pMatrixBuffer = nullptr;
-
 };
 
