@@ -18,6 +18,8 @@ private:
 		XMFLOAT4X4 worldMatrix;
 		XMFLOAT4X4 worldViewProjectionMatrix;
 		XMFLOAT4 tilingOffset;
+		XMFLOAT3 cameraWorldPosition;
+		FLOAT dummy;
 	};
 
 	struct LightBuffer

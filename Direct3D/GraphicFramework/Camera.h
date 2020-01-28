@@ -13,6 +13,7 @@ public:
 
 	XMFLOAT4X4 getViewMatrix() { return _viewMatrix; }
 	XMFLOAT4X4 getProjectionMatrix() { return _projectionMatrix; }
+	XMFLOAT3 getPosition() { return _position; }
 
 	void move(FXMVECTOR vector);
 	void rotate(FXMVECTOR euler);

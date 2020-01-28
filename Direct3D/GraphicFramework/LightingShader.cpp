@@ -32,6 +32,7 @@ void LightingShader::setMatrixBufferValues(ID3D11DeviceContext* pDeviceContext, 
 	XMStoreFloat4x4(&pBuffer->worldMatrix, XMMatrixTranspose(worldMatrix));
 	XMStoreFloat4x4(&pBuffer->worldViewProjectionMatrix, wvpMatrix);
 	pBuffer->tilingOffset = *reinterpret_cast<XMFLOAT4*>(values[3]);
+	pBuffer->cameraWorldPosition = *reinterpret_cast<XMFLOAT3*>(values[4]);
 
 	// unmap resource to write back data to video memory
 	pDeviceContext->Unmap(_pMatrixBuffer, 0);
@@ -50,7 +51,7 @@ void LightingShader::setShaderResources(ID3D11DeviceContext* pDeviceContext, voi
 	pBuffer->ambientLight = { 0.1f, 0.1f, 0.1f, 1.0f };
 	pBuffer->lightColor = { 0.7f, 0.4f, 0.0f, 1.0f };
 	pBuffer->lightIntensity = 1.0f;
-	pBuffer->lightVector = { 1.0f, 1.0f, 0.0f };
+	XMStoreFloat3(&pBuffer->lightVector, XMVector3Normalize(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f)));
 
 	// unmap resource to write back data to video memory
 	pDeviceContext->Unmap(_pLightBuffer, 0);
