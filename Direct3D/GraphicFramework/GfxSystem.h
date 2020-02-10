@@ -21,4 +21,5 @@ private:
 	AShader* _pShader = nullptr;
 	Camera* _pCamera = nullptr;
 	Texture* _pTexture = nullptr;
+	Texture* _pNormalMap = nullptr;
 };

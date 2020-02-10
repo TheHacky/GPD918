@@ -1,4 +1,5 @@
 #include "LightingShader.h"
+#include "Texture.h"
 
 LightingShader::LightingShader()
 {
@@ -49,15 +50,25 @@ void LightingShader::setShaderResources(ID3D11DeviceContext* pDeviceContext, voi
 	// store data in memory
 	LightBuffer* pBuffer = reinterpret_cast<LightBuffer*>(tmpMap.pData);
 	pBuffer->ambientLight = { 0.1f, 0.1f, 0.1f, 1.0f };
-	pBuffer->lightColor = { 0.7f, 0.4f, 0.0f, 1.0f };
-	pBuffer->lightIntensity = 1.0f;
+	pBuffer->lightColor = { 0.7f, 0.7f, 0.7f, 1.0f };
+	pBuffer->lightIntensity = 5.0f;
 	XMStoreFloat3(&pBuffer->lightVector, XMVector3Normalize(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f)));
+	pBuffer->lightPosition = { 0.0f, 0.0f, -0.7f };
+	pBuffer->lightRange = 10.0f;
+	pBuffer->lightForward = { 0.0f, 0.0f, 1.0f };
+	pBuffer->lightAngle = cosf(XM_PIDIV4);
+	pBuffer->type = 0;
 
 	// unmap resource to write back data to video memory
 	pDeviceContext->Unmap(_pLightBuffer, 0);
 
-	// sset constant buffer on pipeline
+	// set constant buffer on pipeline
 	pDeviceContext->PSSetConstantBuffers(0, 1, &_pLightBuffer);
+
+	// set normal map
+	Texture* pNormalMap = reinterpret_cast<Texture*>(values[1]);
+	ID3D11ShaderResourceView* normalMaps[] = { pNormalMap->getTexture() };
+	pDeviceContext->PSSetShaderResources(1, 1, normalMaps);
 }
 
 bool LightingShader::initLightBuffer(ID3D11Device* pDevice)

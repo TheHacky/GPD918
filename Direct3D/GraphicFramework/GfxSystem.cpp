@@ -29,8 +29,11 @@ bool GfxSystem::init(HWND hWnd, UINT screenWidth, UINT screenHeight, BOOL isFull
 	if (!_pCamera->init(screenWidth, screenHeight)) return false;
 	_pCamera->move(XMVectorSet(0.0f, 0.0f, -2.0f, 0.0f));
 
-	_pTexture = new Texture("brick_wall.tga");
+	_pTexture = new Texture("brick_wall.jpg");
 	if (!_pTexture->init(_pD3D->getDevice())) return false;
+
+	_pNormalMap = new Texture("brick_wall_norm.png");
+	if (!_pNormalMap->init(_pD3D->getDevice())) return false;
 
 	return true;
 }
@@ -71,8 +74,9 @@ void GfxSystem::render()
 		reinterpret_cast<void*>(&_pCamera->getPosition()),
 	};
 
-	void* resources[1] = {
-		reinterpret_cast<void*>(_pTexture)
+	void* resources[] = {
+		reinterpret_cast<void*>(_pTexture),
+		reinterpret_cast<void*>(_pNormalMap),
 	};
 	_pShader->setMatrixBufferValues(_pD3D->getDeviceContext(), matrices);
 	_pShader->setShaderResources(_pD3D->getDeviceContext(), resources);

@@ -23,6 +23,7 @@ public:
 protected:
 	virtual void initVertexData() = 0;
 	virtual void initIndexData() = 0;
+	void calculateTangentSpace();
 
 	Vertex* _pVertexData = nullptr;
 	UINT* _pIndexData = nullptr;

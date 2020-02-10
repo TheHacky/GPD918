@@ -28,6 +28,12 @@ private:
 		XMFLOAT3 lightVector; 
 		FLOAT lightIntensity; 
 		XMFLOAT4 lightColor; 
+		XMFLOAT3 lightPosition;
+		FLOAT lightRange;
+		XMFLOAT3 lightForward;
+		FLOAT lightAngle;
+		INT type;
+		XMFLOAT3 dummy;
 	};
 
 	bool initLightBuffer(ID3D11Device* pDevice);
