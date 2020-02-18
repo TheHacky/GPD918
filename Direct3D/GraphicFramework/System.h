@@ -18,6 +18,7 @@ private:
 
 	HWND _hWnd = nullptr;
 
+	// submodules
 	GfxSystem* _pGfxSystem = nullptr;
 
 	LARGE_INTEGER _lastTickCount = {};

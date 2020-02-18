@@ -47,7 +47,7 @@ void GfxSystem::update(FLOAT dt)
 	if (scale >= 1.0f || scale <= 0.0f) delta *= -1.0f;
 	scale += delta * dt;
 
-	_pMesh->rotate(XMVectorSet(0.0f, XM_PIDIV4, 0.0f, 0.0f) * dt);
+	_pMesh->rotate(XMVectorSet(0.0f, XM_PIDIV4 * 0.25f, 0.0f, 0.0f) * dt);
 	//_pMesh->scale(XMVectorSet(scale, scale, scale, 0.0f));
 	_pMesh->update();
 
