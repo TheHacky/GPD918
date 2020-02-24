@@ -2,6 +2,8 @@
 #include "Direct3D.h"
 #include <sstream>
 
+System* System::_pInstance = new System();
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -13,11 +15,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE) DestroyWindow(hWnd);
+		
+		System::Instance()->printKey(wParam);
+
 		return 0;
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
+
+System::System() {}
 
 bool System::init(HINSTANCE hInstance, UINT screenWidth, UINT screenHeight, int nCmdShow, bool isFullscreen, bool isVsyncEnabled)
 {
@@ -56,6 +63,13 @@ void System::deInit()
 	_pGfxSystem = nullptr;
 
 	DestroyWindow(_hWnd);
+}
+
+void System::printKey(int key)
+{
+	std::wstringstream wss;
+	wss << L"Key: " << key << std::endl;
+	OutputDebugString(wss.str().c_str());
 }
 
 bool System::initWindow(HINSTANCE hInstance, UINT screenWidth, UINT screenHeight, int nCmdShow)
@@ -124,9 +138,9 @@ void System::updateHighFrequencyTimer()
 	_lastTickCount = tmp;
 
 #if UNICODE && _DEBUG
-	std::wstringstream wss;
+	/*std::wstringstream wss;
 	wss << L"DeltaTime: " << _deltaTime << " // FPS: " << 1.0f / _deltaTime << std::endl;
-	OutputDebugString(wss.str().c_str());
+	OutputDebugString(wss.str().c_str());*/
 #endif // UNICODE
 
 }

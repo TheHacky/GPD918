@@ -2,7 +2,7 @@
 
 bool Camera::init(UINT screenWidth, UINT screenHeight)
 {
-	XMMATRIX matrix = XMMatrixPerspectiveFovLH(0.3333333f * XM_PI, static_cast<float>(screenWidth) / static_cast<float>(screenHeight), 0.3f, 1000.0f);
+	XMMATRIX matrix = XMMatrixPerspectiveFovLH(XM_PIDIV4, static_cast<float>(screenWidth) / static_cast<float>(screenHeight), 0.3f, 1000.0f);
 	XMStoreFloat4x4(&_projectionMatrix, matrix);
 
 	return true;

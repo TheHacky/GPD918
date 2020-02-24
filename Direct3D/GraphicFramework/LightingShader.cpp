@@ -58,6 +58,7 @@ void LightingShader::setShaderResources(ID3D11DeviceContext* pDeviceContext, voi
 	pBuffer->lightForward = { 0.0f, 0.0f, 1.0f };
 	pBuffer->lightAngle = cosf(XM_PIDIV4);
 	pBuffer->type = 0;
+	pBuffer->specularModifier = 1.0f;
 
 	// unmap resource to write back data to video memory
 	pDeviceContext->Unmap(_pLightBuffer, 0);

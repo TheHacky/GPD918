@@ -33,7 +33,8 @@ private:
 		XMFLOAT3 lightForward;
 		FLOAT lightAngle;
 		INT type;
-		XMFLOAT3 dummy;
+		FLOAT specularModifier;
+		XMFLOAT2 dummy;
 	};
 
 	bool initLightBuffer(ID3D11Device* pDevice);

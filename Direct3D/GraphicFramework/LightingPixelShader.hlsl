@@ -13,6 +13,8 @@ cbuffer LightingBuffer
 	float3 lightForward;
 	float lightAngle;
 	int type; // 0 = directional, 1 = point, ...
+	float specularModifier;
+	float2 dummy;
 };
 
 struct PixelInput
@@ -120,7 +122,7 @@ float4 main(PixelInput input) : SV_TARGET
 			if (specularIntensity > 0)
 			{
 				float phongExponent = 256;
-				specular = saturate(lightColor * pow(specularIntensity, phongExponent) * light.w * color.a);
+				specular = saturate(lightColor * pow(specularIntensity, phongExponent) * light.w * specularModifier);
 			}
 		}
 	}

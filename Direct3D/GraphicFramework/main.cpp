@@ -9,13 +9,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	System sys = {};
-	if (sys.init(hInstance, 1280, 720, nCmdShow, false, false))
+	System* pSystem = System::Instance();
+	if (pSystem->init(hInstance, 1280, 720, nCmdShow, false, false))
 	{
-		sys.run();
+		pSystem->run();
 	}
 
-	sys.deInit();
+	pSystem->deInit();
 
 	_CrtDumpMemoryLeaks();
 
