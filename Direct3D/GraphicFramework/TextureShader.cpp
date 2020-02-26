@@ -9,6 +9,8 @@ TextureShader::TextureShader()
 
 void TextureShader::setShaderResources(ID3D11DeviceContext* pDeviceContext, void** values)
 {
+	// if (_pLastTexture == pTexture) return; 
+
 	Texture* pTexture = reinterpret_cast<Texture*>(values[0]);
 
 	ID3D11ShaderResourceView* textures[] = { pTexture->getTexture() };

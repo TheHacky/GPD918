@@ -9,9 +9,16 @@ public:
 	void run();
 	void deInit();
 
+	static System* Instance() { return _pInstance; }
+
+	void printKey(WPARAM key);
+
 protected:
 
 private:
+	System() {}
+	static System* _pInstance;
+	
 	bool initWindow(HINSTANCE hInstance, UINT screenWidth, UINT screenHeight, int nCmdShow);
 	bool initHighFrequencyTimer();
 	void updateHighFrequencyTimer();
